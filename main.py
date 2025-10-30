@@ -49,7 +49,7 @@ def main():
     next_row = existing + 1 if existing >= 4 else 4  # 4行目以降に書き込み
 
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    values = [["", now, dummy_investigation, dummy_article, char_count]]
+    values = [["✅", now, dummy_investigation, dummy_article, char_count]]
 
     sheet.update(f"A{next_row}:E{next_row}", values)
 
