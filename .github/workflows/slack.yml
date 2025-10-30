@@ -1,3 +1,5 @@
+# 定刻確認用コメントアウト
+
 name: Daily Slack Notify (Python)
 
 on:
