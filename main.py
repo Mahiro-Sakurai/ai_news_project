@@ -52,7 +52,7 @@ def main():
     JST = timezone(timedelta(hours=9))
     now_jst = datetime.now(JST).strftime("%Y-%m-%d %H:%M:%S")
 
-    values = [["", now_jst, dummy_investigation, dummy_article, char_count]]
+    values = [["✅✅✅✅✅", now_jst, dummy_investigation, dummy_article, char_count]]
 
     sheet.update(f"A{next_row}:E{next_row}", values)
 
