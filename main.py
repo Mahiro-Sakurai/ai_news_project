@@ -67,8 +67,8 @@ def main():
     # 1️⃣ プロンプト読み込み
     # ==============================
     prompt_row = sheet.row_values(2)
-    prompt_investigate = prompt_row[0] if len(prompt_row) > 0 else ""
-    prompt_write = prompt_row[1] if len(prompt_row) > 1 else ""
+    prompt_investigate = prompt_row[2] if len(prompt_row) > 0 else ""
+    prompt_write = prompt_row[3] if len(prompt_row) > 1 else ""
 
     print(f"調査プロンプト: {prompt_investigate}")
     print(f"執筆プロンプト: {prompt_write}")
