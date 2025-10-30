@@ -2,7 +2,7 @@ name: Daily Slack Notify (Python)
 
 on:
   schedule:
-    - cron: "0 21 * * *"  # UTC21時 = 日本時間 朝6時
+    - cron: "*/5 * * * *"  # ← 5分おきに実行（UTC基準）
   workflow_dispatch:
 
 jobs:
