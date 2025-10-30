@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 # ===============================================
 # 🔧 設定
 # ===============================================
-CLAUDE_MODEL = "claude-opus-4-1"  # ← モデル名を変更可能（Sonnet / Opusなど）
+CLAUDE_MODEL = "claude-opus-4.1"  # 最新モデル（Web検索対応）
 
 
 # ===============================================
@@ -19,9 +19,9 @@ def send_slack(msg):
 
 
 # ===============================================
-# 🤖 Anthropic Claude API呼び出し
+# 🤖 Anthropic Claude API呼び出し（Web検索対応）
 # ===============================================
-def call_claude(prompt: str):
+def call_claude(prompt: str, enable_web_search: bool = True):
     api_key = os.environ.get("ANTHROPIC_API_KEY")
     if not api_key:
         raise RuntimeError("Anthropic APIキーが設定されていません。")
@@ -29,21 +29,47 @@ def call_claude(prompt: str):
     headers = {
         "x-api-key": api_key,
         "content-type": "application/json",
+        # Claude 3.5 / 4.1 系のTool Use対応バージョン
         "anthropic-version": "2023-06-01",
     }
 
+    # ClaudeのWeb検索ツール定義
+    tools = [
+        {
+            "name": "web_search",
+            "description": "インターネット検索を使って最新の情報を取得する。",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "検索クエリ文字列"}
+                },
+                "required": ["query"],
+            },
+        }
+    ]
+
     data = {
         "model": CLAUDE_MODEL,
-        "max_tokens": 1000,
+        "max_tokens": 1500,
+        "system": (
+            "あなたは知識豊富なAIライターです。"
+            "必要に応じてweb_searchツールを使い、最新情報を調べてから回答してください。"
+        ),
         "messages": [{"role": "user", "content": prompt}],
+        # 🔍 ネット検索を有効化
+        "tools": tools if enable_web_search else [],
+        "tool_choice": "auto" if enable_web_search else None,
     }
 
     res = requests.post(
         "https://api.anthropic.com/v1/messages", headers=headers, json=data
     )
     res.raise_for_status()
-    result = res.json()["content"][0]["text"]
-    return result.strip()
+
+    content = res.json().get("content", [])
+    # Claudeの出力（text部分のみ抽出）
+    text_blocks = [c["text"] for c in content if c["type"] == "text"]
+    return "\n".join(text_blocks).strip()
 
 
 # ===============================================
@@ -77,9 +103,11 @@ def main():
     # 2️⃣ Claudeでニュース調査・執筆
     # ==============================
     try:
-        investigate_result = call_claude(prompt_investigate)
+        # 🔍 調査はWeb検索ON
+        investigate_result = call_claude(prompt_investigate, enable_web_search=True)
+        # ✍️ 執筆は通常モード
         write_prompt = f"{prompt_write}\n\n【参考情報】\n{investigate_result}"
-        article_result = call_claude(write_prompt)
+        article_result = call_claude(write_prompt, enable_web_search=False)
     except Exception as e:
         send_slack(f"❌ Claude APIエラー: {e}")
         raise
