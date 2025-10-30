@@ -1,0 +1,22 @@
+name: Daily Slack Notify (Python)
+
+on:
+  schedule:
+    - cron: "0 21 * * *"  # UTC21時 = 日本時間 朝6時
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run Python Slack notifier
+        run: python main.py
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

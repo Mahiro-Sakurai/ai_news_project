@@ -1,8 +1,0 @@
-services:
-  - type: cron
-    name: ai-news-job
-    env: python
-    schedule: "0 6 * * *"  # UTCで毎朝6時 → 日本時間15時（＋9時間補正）/ 日本時間朝6時なら ⇒ "0 21 * * *"
-    buildCommand: ""
-    startCommand: "python main.py"
-
